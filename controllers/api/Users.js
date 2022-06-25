@@ -46,6 +46,10 @@ router.post('/', (req, res) => {
       res.json(user);
     })
     .catch(err => {
+      if (err.code === 11000) {
+        res.status(400).json({message: "Duplicate email address"});
+        return;
+      }
       res.status(500).json(err);
     });
 });
