@@ -18,7 +18,16 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/:id', async (req, res) => {
-  await User.findById(req.params.id)
+  User.findById(req.params.id)
+  .populate({
+    path: 'thoughts',
+    populate: {
+      path: "reactions"
+    }
+  })
+  .populate({
+    path: 'friends'
+  })
     .then(user => {
       if (!user) {
         res.status(404).json({ message: 'No users found' });
@@ -80,20 +89,8 @@ router.delete('/:id', async (req, res) => {
       res.json(err);
       return;
     }
-    res.json(result);
+    res.json({message: "User deleted"});
   });
-
-/*   await User.findOneAndDelete({ _id: req.params.id })
-    .then(user => {
-      if (!user) {
-        res.status(404).json({ message: 'No user found' });
-        return;
-      }
-      res.json(user);
-    })
-    .catch(err => {
-      res.status(500).json(err);
-    }); */
 });
 
 router.post('/:userId/friends/', async (req, res) => {

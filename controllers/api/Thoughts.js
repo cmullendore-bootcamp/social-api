@@ -70,7 +70,7 @@ router.delete('/:id', async (req, res) => {
                 return;
             }
             await User.findOneAndUpdate({ username: thought.username }, { $pull: { thoughts: thought._id } }, { new: true });
-            res.json(thought);
+            res.json({message: "Thought deleted."});
         })
         .catch(err => {
             res.status(500).json(err);
