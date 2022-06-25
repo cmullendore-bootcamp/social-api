@@ -1,5 +1,7 @@
 const router = require('express').Router();
 const User = require("../../models/User");
+const Thought = require("../../models/Thought");
+const { response } = require('express');
 
 router.get('/', async (req, res) => {
   await User.find({})
@@ -55,7 +57,33 @@ router.put('/:id', async (req, res) => {
 
 
 router.delete('/:id', async (req, res) => {
-  await User.findOneAndDelete({ _id: req.params.id })
+  const user = await User.findById(req.params.id).exec();
+
+  if (!user) {
+    res.status(404).json({ message: "User not found" });
+    return;
+  }
+
+  Thought.deleteMany({
+    _id: {
+      $in: user.thoughts
+    }
+  }, (err, result) => {
+    if (err) {
+      res.json(err);
+      return;
+    }
+  });
+
+  User.findByIdAndDelete(user._id, (err, result) => {
+    if (err) {
+      res.json(err);
+      return;
+    }
+    res.json(result);
+  });
+
+/*   await User.findOneAndDelete({ _id: req.params.id })
     .then(user => {
       if (!user) {
         res.status(404).json({ message: 'No user found' });
@@ -65,7 +93,7 @@ router.delete('/:id', async (req, res) => {
     })
     .catch(err => {
       res.status(500).json(err);
-    });
+    }); */
 });
 
 router.post('/:userId/friends/', async (req, res) => {
